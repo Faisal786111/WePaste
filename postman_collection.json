@@ -1,0 +1,133 @@
+{
+  "info": {
+    "name": "WePaste API",
+    "description": "API collection for WePaste - Pastebin + FileShare Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["health"]
+        },
+        "description": "Check if the API server is running"
+      }
+    },
+    {
+      "name": "Create Content",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "text",
+              "value": "This is a sample text content for testing WePaste API",
+              "type": "text"
+            },
+            {
+              "key": "images",
+              "type": "file",
+              "src": []
+            },
+            {
+              "key": "files",
+              "type": "file",
+              "src": []
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://localhost:5000/api/createContent",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "createContent"]
+        },
+        "description": "Create new content (text, images, files) and get a random key"
+      }
+    },
+    {
+      "name": "Read Content",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/readContent/:randomKey",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "readContent", ":randomKey"],
+          "variable": [
+            {
+              "key": "randomKey",
+              "value": "YOUR_RANDOM_KEY_HERE",
+              "description": "Random key generated when creating content"
+            }
+          ]
+        },
+        "description": "Retrieve content by random key"
+      }
+    },
+    {
+      "name": "Download File",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/download/:fileId",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "download", ":fileId"],
+          "variable": [
+            {
+              "key": "fileId",
+              "value": "YOUR_FILE_ID_HERE",
+              "description": "GridFS file ID from image or file metadata"
+            }
+          ]
+        },
+        "description": "Download a file from GridFS by file ID"
+      }
+    },
+    {
+      "name": "Delete Content",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/api/delete/:randomKey",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["api", "delete", ":randomKey"],
+          "variable": [
+            {
+              "key": "randomKey",
+              "value": "YOUR_RANDOM_KEY_HERE",
+              "description": "Random key of the content to delete"
+            }
+          ]
+        },
+        "description": "Delete content by random key (only valid within 2 hours)"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ]
+}
+
