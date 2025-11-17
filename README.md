@@ -2,6 +2,10 @@
 
 WePaste is a full-stack MERN application that combines pastebin functionality with file sharing capabilities. Users can upload unlimited text, multiple images, and multiple files, all accessible through a randomly generated key. All content automatically expires after 2 hours.
 
+## 🌐 Live Demo
+
+Experience WePaste in production: [https://wepaste.onrender.com](https://wepaste.onrender.com)
+
 ![WePaste](https://img.shields.io/badge/WePaste-v1.0.0-blue)
 ![MERN Stack](https://img.shields.io/badge/Stack-MERN-green)
 
