@@ -2,7 +2,7 @@ const Text = require('../models/Text');
 const ImageMeta = require('../models/ImageMeta');
 const FileMeta = require('../models/FileMeta');
 const RandomKeys = require('../models/RandomKeys');
-const { uploadToGridFS, deleteFromGridFS, getGridFSFileStream } = require('../utils/gridfs');
+const { uploadToGridFS, deleteFromGridFS } = require('../utils/gridfs');
 const { generateUnique4DigitKey } = require('../utils/keyGenerator');
 const { validateFileSize, validateImageType, validateFileType } = require('../utils/fileValidator');
 
@@ -157,8 +157,10 @@ const createContent = async (req, res, next) => {
  * Helper function to get full URL for file
  */
 const getFileUrl = (req, fileId) => {
-  const protocol = req.protocol;
-  const host = req.get('host');
+  const forwardedProto = req.get('x-forwarded-proto');
+  const forwardedHost = req.get('x-forwarded-host');
+  const protocol = forwardedProto ? forwardedProto.split(',')[0] : req.protocol;
+  const host = forwardedHost || req.get('host');
   return `${protocol}://${host}/api/download/${fileId}`;
 };
 
@@ -365,81 +367,6 @@ const getContent = async (req, res, next) => {
 };
 
 /**
- * GET /api/download/:fileId
- * Download/view file from GridFS
- */
-const downloadFile = async (req, res, next) => {
-  try {
-    const { fileId } = req.params;
-
-    if (!fileId) {
-      return res.status(400).json({
-        success: false,
-        error: 'File ID is required',
-      });
-    }
-
-    // Get file metadata to set proper headers
-    const bucket = require('../config/database').getGridFSBucket();
-    const mongoose = require('mongoose');
-    
-    let files;
-    try {
-      files = await bucket.find({ _id: new mongoose.Types.ObjectId(fileId) }).toArray();
-    } catch (error) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid file ID format',
-      });
-    }
-
-    if (files.length === 0) {
-      return res.status(404).json({
-        success: false,
-        error: 'File not found',
-      });
-    }
-
-    const file = files[0];
-    
-    // Set CORS headers for file serving
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Content-Type', file.contentType || 'application/octet-stream');
-    res.setHeader('Content-Length', file.length);
-    
-    // Set Content-Disposition for inline viewing (images) or download (files)
-    const isImage = file.contentType && file.contentType.startsWith('image/');
-    if (isImage) {
-      res.setHeader('Content-Disposition', `inline; filename="${file.filename}"`);
-    } else {
-      res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
-    }
-
-    // Get file stream
-    const stream = getGridFSFileStream(fileId);
-
-    stream.on('error', (error) => {
-      if (error.code === 'ENOENT' || error.code === 'ENOTFOUND') {
-        return res.status(404).json({
-          success: false,
-          error: 'File not found',
-        });
-      }
-      console.error('Error streaming file:', error);
-      if (!res.headersSent) {
-        next(error);
-      }
-    });
-
-    stream.pipe(res);
-  } catch (error) {
-    console.error('Error in downloadFile:', error);
-    next(error);
-  }
-};
-
-/**
  * DELETE /api/delete/:key
  * Delete content by key (supports both 4-digit and legacy keys)
  * Only valid within 2 hours
@@ -519,6 +446,5 @@ module.exports = {
   readContent,
   getContent,
   deleteContent,
-  downloadFile,
 };
 

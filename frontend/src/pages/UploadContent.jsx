@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UploadForm from '../components/UploadForm';
 import { copyToClipboard } from '../utils/clipboard';
@@ -8,6 +8,16 @@ const UploadContent = () => {
   const [copied, setCopied] = useState(false);
   const [copiedType, setCopiedType] = useState(null); // 'key' or 'url'
   const navigate = useNavigate();
+  const successRef = useRef(null);
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    if (uploadResult && successRef.current) {
+      successRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (!uploadResult && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [uploadResult]);
 
   /**
    * Handle successful upload
@@ -106,12 +116,18 @@ const UploadContent = () => {
 
         {/* Upload Form or Success Message */}
         {!uploadResult ? (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700 animate-fadeIn">
+          <div
+            ref={formRef}
+            className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-200 dark:border-gray-700 animate-fadeIn"
+          >
             <UploadForm onUploadSuccess={handleUploadSuccess} />
           </div>
         ) : (
           /* Success Message - Large Key Display */
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10 border border-gray-200 dark:border-gray-700 animate-fadeIn">
+          <div
+            ref={successRef}
+            className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-10 border border-gray-200 dark:border-gray-700 animate-fadeIn"
+          >
             <div className="text-center space-y-8">
               {/* Success Icon */}
               <div className="inline-block p-6 bg-gradient-to-r from-green-400 to-green-600 rounded-full shadow-xl animate-pulse">

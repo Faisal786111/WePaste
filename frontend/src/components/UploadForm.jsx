@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createContent } from '../utils/api';
 
 const UploadForm = ({ onUploadSuccess }) => {
@@ -9,10 +9,22 @@ const UploadForm = ({ onUploadSuccess }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errors, setErrors] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const [shouldScrollToButton, setShouldScrollToButton] = useState(false);
   
   const imageInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const dropZoneRef = useRef(null);
+  const submitButtonRef = useRef(null);
+
+  useEffect(() => {
+    if (shouldScrollToButton && submitButtonRef.current) {
+      submitButtonRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+      setShouldScrollToButton(false);
+    }
+  }, [shouldScrollToButton]);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
@@ -89,6 +101,7 @@ const UploadForm = ({ onUploadSuccess }) => {
     } else {
       setImages((prev) => [...prev, ...selectedImages].slice(0, 20));
       setErrors([]);
+      setShouldScrollToButton(true);
     }
   };
 
@@ -118,6 +131,7 @@ const UploadForm = ({ onUploadSuccess }) => {
     } else {
       setFiles((prev) => [...prev, ...selectedFiles].slice(0, 20));
       setErrors([]);
+      setShouldScrollToButton(true);
     }
   };
 
@@ -440,6 +454,7 @@ const UploadForm = ({ onUploadSuccess }) => {
         type="submit"
         onClick={handleSubmit}
         disabled={isUploading || (!text.trim() && images.length === 0 && files.length === 0)}
+        ref={submitButtonRef}
         className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 hover:from-blue-700 hover:via-purple-700 hover:to-blue-700 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98]"
       >
         {isUploading ? (
