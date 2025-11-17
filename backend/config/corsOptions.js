@@ -5,6 +5,7 @@ const baseAllowedOrigins = [
   'http://127.0.0.1:3000',
   'http://192.168.1.5:3000',
   'https://wepaste.vercel.app',
+  'https://wepaste.onrender.com',
 ];
 
 const envOrigin = process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : [];
