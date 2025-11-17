@@ -503,7 +503,7 @@ const deleteContent = async (req, res, next) => {
     }
 
     // Delete all random key entries
-    await RandomKeys.deleteMany({ key: randomKey });
+    await RandomKeys.deleteMany({ key });
 
     res.status(200).json({
       success: true,
